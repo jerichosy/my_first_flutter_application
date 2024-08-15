@@ -92,8 +92,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
+  var history = <WordPair>[];
+
+  GlobalKey? historyListKey;
 
   void getNext() {
+    // insert to history first before we change the current word pair
+    history.insert(0, current);
+    var animatedList = historyListKey?.currentState as AnimatedListState?;
+    animatedList?.insertItem(0);
+
     current = WordPair.random();
     notifyListeners();
   }
@@ -127,6 +135,10 @@ class GeneratorPage extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,  // to vertically center
         children: [
+          // Expanded(
+          //   flex: 3,
+          //   child: HistoryListView(),
+          // ),
           Text('A random AWESOME idea from SEGS:'),
           BigCard(pair: pair),
           SizedBox(height: 10),  // visual spacing between BigCard and ElevatedButton
@@ -176,11 +188,23 @@ class BigCard extends StatelessWidget {
       elevation: 5,  // shadow of the BigCard
       child: Padding(
         padding: const EdgeInsets.all(20),
-        child: Text(
-          pair.asSnakeCase,
-          style: style,
-          semanticsLabel: "${pair.first} ${pair.second}",  // accessibility: for screen readers to correctly pronounce each generated word pair
-        ),
+        child: AnimatedSize(
+          duration: Duration(milliseconds: 200),
+          child: MergeSemantics(
+            child: Wrap(
+              children: [
+                Text(
+                  pair.first,
+                  style: style.copyWith(fontWeight: FontWeight.w200),
+                ),
+                Text(
+                  pair.second,
+                  style: style.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          )
+        )
       ),
     );
   }
