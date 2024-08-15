@@ -25,6 +25,67 @@ class MyApp extends StatelessWidget {
   }
 }
 
+class MyHomePage extends StatefulWidget {
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+
+  var selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+
+    Widget page;
+    switch (selectedIndex) {
+      case 0:
+        page = GeneratorPage();
+        break;
+      case 1:
+        page = Placeholder();
+        break;
+      default:
+        throw UnimplementedError('no widget for $selectedIndex');  // fail-fast principle: explictly crash (in dev) instead of having silent/undetected error go to prod
+    }
+
+    return Scaffold(
+      body: Row(
+        children: [
+          SafeArea(
+            child: NavigationRail(
+              extended: false,
+              destinations: [
+                NavigationRailDestination(
+                  icon: Icon(Icons.home),
+                  label: Text('Home'),
+                ),
+                NavigationRailDestination(
+                  icon: Icon(Icons.favorite),
+                  label: Text('Favorites'),
+                ),
+              ],
+              selectedIndex: selectedIndex,
+              onDestinationSelected: (value) {
+                // print('selected: $value');
+                setState(() {
+                  selectedIndex = value;
+                });
+              },
+            ),
+          ),
+          Expanded(
+            child: Container(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              child: page,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class MyAppState extends ChangeNotifier {
   var current = WordPair.random();
 
@@ -45,7 +106,7 @@ class MyAppState extends ChangeNotifier {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class GeneratorPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
@@ -58,36 +119,34 @@ class MyHomePage extends StatelessWidget {
       icon = Icons.favorite_border;
     }
 
-    return Scaffold(
-      body: Center(  // wrap to horizontally center
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,  // to vertically center
-          children: [
-            Text('A random AWESOME idea from SEGS:'),
-            BigCard(pair: pair),
-            SizedBox(height: 10),  // visual spacing between BigCard and ElevatedButton
-            Row(
-              mainAxisSize: MainAxisSize.min,  // tells `Row` not to take all available horizontal space, different strat from just centering with mainAxisAlignment
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    appState.toggleFavorite();
-                  },
-                  icon: Icon(icon),
-                  label: Text('Like'),
-                ),
-                SizedBox(width: 10),  // visual spacing between BigCard and ElevatedButton
-                ElevatedButton(
-                  onPressed: () {
-                    // print('button pressed')
-                    appState.getNext();
-                  },
-                  child: Text('Next'),
-                ),
-              ],
-            ),
-          ],
-        ),
+    return Center(  // wrap to horizontally center
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,  // to vertically center
+        children: [
+          Text('A random AWESOME idea from SEGS:'),
+          BigCard(pair: pair),
+          SizedBox(height: 10),  // visual spacing between BigCard and ElevatedButton
+          Row(
+            mainAxisSize: MainAxisSize.min,  // tells `Row` not to take all available horizontal space, different strat from just centering with mainAxisAlignment
+            children: [
+              ElevatedButton.icon(
+                onPressed: () {
+                  appState.toggleFavorite();
+                },
+                icon: Icon(icon),
+                label: Text('Like'),
+              ),
+              SizedBox(width: 10),  // visual spacing between BigCard and ElevatedButton
+              ElevatedButton(
+                onPressed: () {
+                  // print('button pressed')
+                  appState.getNext();
+                },
+                child: Text('Next'),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
